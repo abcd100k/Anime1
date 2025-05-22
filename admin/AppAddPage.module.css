@@ -1,0 +1,147 @@
+/* AppAddPage.css */
+
+.app-add-page {
+  padding: 20px;
+  font-family: 'Arial', sans-serif; /* Consistent font-family with a modern touch */
+  max-width: 600px; /* Limit width for better readability */
+  margin: 0 auto; /* Center the form on the page */
+  background-color: #f9f9f9; /* Light background color for contrast */
+  border: 1px solid #ccc; /* Subtle border */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Slight shadow for depth */
+}
+
+.app-add-page h2 {
+  margin-bottom: 20px;
+  color: #333; /* Dark heading for contrast */
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #555; /* Softer label color */
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+  width: 100%;
+  padding: 12px; /* Increased padding for better touch targets */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+  transition: border-color 0.2s ease; /* Smooth transition for focus */
+}
+
+.form-group input[type="text"]:focus,
+.form-group textarea:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove default outline */
+}
+
+.form-group textarea {
+  resize: vertical; /* Allow vertical resizing of textarea */
+}
+
+.message {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.message.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.submit-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s ease;
+}
+
+.submit-btn:hover {
+  background-color: #0056b3; /* Darker color on hover */
+}
+
+.loading-message {
+  text-align: center;
+  color: #666;
+  margin-top: 10px;
+}
+
+.screenshot-input {
+  display: flex;
+  align-items: center;
+}
+
+.screenshot-input input[type="text"] {
+  flex-grow: 1;
+  margin-right: 10px; /* Space between input and button */
+}
+
+.remove-screenshot-btn,
+.add-screenshot-btn {
+  background-color: #dc3545; /* Red for remove */
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: background-color 0.2s ease;
+}
+
+.add-screenshot-btn {
+  background-color: #28a745; /* Green for add */
+  margin-left: 10px; /* Space between buttons */
+}
+
+.remove-screenshot-btn:hover {
+  background-color: #c82333; /* Darker shade on hover */
+}
+
+.add-screenshot-btn:hover {
+  background-color: #218838; /* Darker shade on hover */
+}
+
+/* Responsive styling */
+@media (max-width: 768px) {
+  .app-add-page {
+      padding: 15px; /* Reduced padding for smaller screens */
+  }
+
+  .submit-btn,
+  .remove-screenshot-btn,
+  .add-screenshot-btn {
+      width: 100%; /* Make buttons full width on small screens */
+      margin-top: 10px; /* Add top margin for spacing */
+      font-size: 1em; /* Keep button text readable */
+  }
+
+  .screenshot-input {
+      flex-direction: column; /* Stack inputs and buttons on small screens */
+      width: 100%;
+  }
+
+  .screenshot-input input[type="text"] {
+      margin-right: 0; /* Remove right margin on stacked inputs */
+      margin-bottom: 5px; /* Add spacing below */
+  }
+}
