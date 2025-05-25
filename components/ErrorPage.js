@@ -16,7 +16,6 @@ const ErrorPage = ({ statusCode = 404, message = "Page Not Found" }) => {
         <title>{`Error ${statusCode} | Your Site Name`}</title>
         <meta name="robots" content="noindex,nofollow" />
       </Head>
-      
       <Layout>
         <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
           <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
@@ -47,10 +46,12 @@ const ErrorPage = ({ statusCode = 404, message = "Page Not Found" }) => {
             
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/">
-                <a className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-center">
+              <Link
+                href="/"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-center">
+                
                   Go to Homepage
-                </a>
+                
               </Link>
               <button
                 onClick={() => window.location.reload()}
@@ -63,10 +64,12 @@ const ErrorPage = ({ statusCode = 404, message = "Page Not Found" }) => {
             {/* Additional Help */}
             <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
               Need help?{" "}
-              <Link href="/contact">
-                <a className="text-blue-600 hover:underline dark:text-blue-400">
+              <Link
+                href="/contact"
+                className="text-blue-600 hover:underline dark:text-blue-400">
+                
                   Contact support
-                </a>
+                
               </Link>
             </p>
           </div>
