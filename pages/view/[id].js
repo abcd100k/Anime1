@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/admin/firebaseConfig';
 import Layout from '@/layout/Layout';
 import dynamic from 'next/dynamic';
 import { fetchAllAppIds } from '@/lib/firebaseHelpers';
 
-// Dynamically import AppDetails
 const AppDetails = dynamic(() => import('@/components/AppDetails'), {
   loading: () => <div className="min-h-[500px] flex items-center justify-center">Loading app details...</div>,
-  ssr: false
+  ssr: false,
 });
 
 const ViewApp = ({ initialData }) => {
   const router = useRouter();
   const [app, setApp] = useState(initialData);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!app) return;
@@ -25,7 +23,6 @@ const ViewApp = ({ initialData }) => {
       try {
         const docRef = doc(db, 'anime', app.id);
         const newViewCount = (app.viewCount || 0) + 1;
-
         await updateDoc(docRef, { viewCount: newViewCount });
         setApp(prev => ({ ...prev, viewCount: newViewCount }));
       } catch (err) {
@@ -35,14 +32,6 @@ const ViewApp = ({ initialData }) => {
 
     incrementView();
   }, [app]);
-
-  if (router.isFallback) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">Loading...</div>
-      </Layout>
-    );
-  }
 
   if (!app) {
     return (
@@ -79,12 +68,12 @@ const ViewApp = ({ initialData }) => {
 
 export async function getStaticPaths() {
   const ids = await fetchAllAppIds();
+
   return {
     paths: ids.map(id => ({ params: { id } })),
-    fallback: false
+    fallback: false, // Required for static export mode
   };
 }
-
 
 export async function getStaticProps({ params }) {
   try {
@@ -99,14 +88,16 @@ export async function getStaticProps({ params }) {
       props: {
         initialData: {
           id: params.id,
-          ...docSnap.data()
-        }
+          ...docSnap.data(),
+        },
       },
-      revalidate: 60
+      // 🚫 REMOVE THIS LINE
+      // revalidate: 60,
     };
   } catch (err) {
     return { notFound: true };
   }
 }
+
 
 export default ViewApp;
