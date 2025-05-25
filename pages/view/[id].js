@@ -1,66 +1,45 @@
-import React, { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
-import Head from "next/head";
-import Layout from "@/layout/Layout";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { db } from "@/admin/firebaseConfig";
-import { env } from "@/next.config";
+import React, { useEffect, useState } from 'react';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/admin/firebaseConfig';
+import Layout from '@/layout/Layout';
+import dynamic from 'next/dynamic';
+import { fetchAllAppIds } from '@/lib/firebaseHelpers';
 
-const AppDetails = dynamic(() => import("../../components/AppDetails"), {
-  ssr: false,
+// Dynamically import AppDetails
+const AppDetails = dynamic(() => import('@/components/AppDetails'), {
+  loading: () => <div className="min-h-[500px] flex items-center justify-center">Loading app details...</div>,
+  ssr: false
 });
 
-const View = () => {
-  const [app, setApp] = useState(null);
-  const [error, setError] = useState(null);
+const ViewApp = ({ initialData }) => {
   const router = useRouter();
-  const { id: appId } = router.query;
+  const [app, setApp] = useState(initialData);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!appId) return;
+    if (!app) return;
 
-    const fetchApp = async () => {
+    const incrementView = async () => {
       try {
-        const docRef = doc(db, "anime", appId);
-        const docSnap = await getDoc(docRef);
+        const docRef = doc(db, 'anime', app.id);
+        const newViewCount = (app.viewCount || 0) + 1;
 
-        if (!docSnap.exists()) {
-          setError({ status: 404, message: "Anime not found" });
-          return;
-        }
-
-        const appData = docSnap.data();
-        const newViewCount = (appData.viewCount || 0) + 1;
-
-        // Update view count in background
-        updateDoc(docRef, { viewCount: newViewCount }).catch(console.error);
-
-        setApp({
-          ...appData,
-          id: appId,
-          viewCount: newViewCount,
-        });
+        await updateDoc(docRef, { viewCount: newViewCount });
+        setApp(prev => ({ ...prev, viewCount: newViewCount }));
       } catch (err) {
-        console.error("Data fetch failed:", err);
-        setError({ status: 500, message: "Failed to load anime details" });
+        console.error('Failed to update view count:', err);
       }
     };
 
-    fetchApp();
-  }, [appId]);
+    incrementView();
+  }, [app]);
 
-  if (error) {
+  if (router.isFallback) {
     return (
       <Layout>
-        <Head>
-          <title>Error {error.status} | Mxime Xyz</title>
-          <meta name="robots" content="noindex" />
-        </Head>
-        <div className="error-page">
-          <h1>Error {error.status}</h1>
-          <p>{error.message}</p>
-        </div>
+        <div className="min-h-screen flex items-center justify-center">Loading...</div>
       </Layout>
     );
   }
@@ -68,69 +47,66 @@ const View = () => {
   if (!app) {
     return (
       <Layout>
-        <Head>
-          <title>Loading... | Mxime Xyz</title>
-          <meta name="robots" content="noindex" />
-        </Head>
+        <div className="min-h-screen flex items-center justify-center">App not found</div>
       </Layout>
     );
   }
 
-  // Generate meta description from app data
   const metaDescription = app.description
-    ? `${app.description.substring(0, 160)}...`
-    : `Details about ${app.title}`;
+    ? `${app.description.substring(0, 160)}${app.description.length > 160 ? '...' : ''}`
+    : `View details about ${app.title}`;
 
-  // Structured data for rich snippets
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "TVSeries",
-    name: app.title,
-    image: app.imageUrl,
-    description: metaDescription,
-    aggregateRating: app.rating
-      ? {
-          "@type": "AggregateRating",
-          ratingValue: app.rating,
-          bestRating: "10",
-          ratingCount: app.ratingCount || 1,
-        }
-      : undefined,
-  };
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://your-site.com';
 
   return (
-    <Layout>
+    <>
       <Head>
-        <title>{`${app.title} | Your Site Name`}</title>
+        <title>{`${app.title} | Mxime Xyz`}</title>
         <meta name="description" content={metaDescription} />
-        <meta name="keywords" content={`anime, ${app.title}, ${app.genre?.join(", ") || ""}`} />
-        
-        {/* Canonical URL */}
-        <link rel="canonical" href={`${window.location.origin}/view/${appId}`} />
-        
-        {/* Open Graph / Facebook */}
-        <meta property="og:type" content="video.tv_show" />
         <meta property="og:title" content={app.title} />
         <meta property="og:description" content={metaDescription} />
-        <meta property="og:image" content={app.imageUrl} />
-        <meta property="og:url" content={`${window.location.origin}/view/${appId}`} />
-        
-        {/* Twitter */}
+        <meta property="og:image" content={app.imageUrl || '/default-og-image.jpg'} />
+        <meta property="og:url" content={`${siteUrl}/view/${app.id}`} />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={app.title} />
-        <meta name="twitter:description" content={metaDescription} />
-        <meta name="twitter:image" content={app.imageUrl} />
-        
-        {/* Structured data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-        />
       </Head>
 
-      <AppDetails app={app} />
-    </Layout>
+      <Layout>
+        <AppDetails app={app} />
+      </Layout>
+    </>
   );
 };
 
-export default View;
+export async function getStaticPaths() {
+  const ids = await fetchAllAppIds();
+  return {
+    paths: ids.map(id => ({ params: { id } })),
+    fallback: false
+  };
+}
+
+
+export async function getStaticProps({ params }) {
+  try {
+    const docRef = doc(db, 'anime', params.id);
+    const docSnap = await getDoc(docRef);
+
+    if (!docSnap.exists()) {
+      return { notFound: true };
+    }
+
+    return {
+      props: {
+        initialData: {
+          id: params.id,
+          ...docSnap.data()
+        }
+      },
+      revalidate: 60
+    };
+  } catch (err) {
+    return { notFound: true };
+  }
+}
+
+export default ViewApp;
