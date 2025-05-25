@@ -6,6 +6,7 @@ import { db } from '@/admin/firebaseConfig';
 import Layout from '@/layout/Layout';
 import dynamic from 'next/dynamic';
 import { fetchAllAppIds } from '@/lib/firebaseHelpers';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const AppDetails = dynamic(() => import('@/components/AppDetails'), {
   loading: () => <div className="min-h-[500px] flex items-center justify-center">Loading app details...</div>,
@@ -64,6 +65,7 @@ const ViewApp = ({ initialData }) => {
 
       <Layout>
         <AppDetails app={app} />
+        <SpeedInsights/>
       </Layout>
     </>
   );
