@@ -44,19 +44,22 @@ const ViewApp = ({ initialData }) => {
   const metaDescription = app.description
     ? `${app.description.substring(0, 160)}${app.description.length > 160 ? '...' : ''}`
     : `View details about ${app.title}`;
+    const metatitle = app.title || 'Watch Anime Online';
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://your-site.com';
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://mxime.xyz/`;
 
   return (
     <>
       <Head>
-        <title>{`${app.title} | Mxime Xyz`}</title>
+        <title >{metatitle} | {`Mxime Xyz`}</title>
         <meta name="description" content={metaDescription} />
-        <meta property="og:title" content={app.title} />
+        <meta property="og:title" content={metatitle} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:image" content={app.imageUrl || '/default-og-image.jpg'} />
         <meta property="og:url" content={`${siteUrl}/view/${app.id}`} />
         <meta name="twitter:card" content="summary_large_image" />
+        
       </Head>
 
       <Layout>
